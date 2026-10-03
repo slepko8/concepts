@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--FRAG-->
+<title>Icon × Origin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;1,6..72,300&family=Roboto+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  /* Layout: нічна галерея. Заголовки по центру тонким серифом, одне атмосферне небо
+     в геро, хроматичні плитки тільки в блоці «dla Ciebie». Телефон — основа, ПК — розширення. */
+  color-scheme:dark;
+  --obsidian:#0f1011; --abyss:#090a0b; --graphite:#2e2e2e; --silver:#cacaca;
+  --ash:#9f9fa0; --cloud:#f5f5f7; --pure:#ffffff; --void:#000000;
+  --iris:#847dff; --pale-iris:#d1c9ff; --deep-iris:#4b49aa;
+  --orchid:#dd90d8; --periwinkle:#90b8f0; --cyan:#00b3dd;
+  --hair:rgba(255,255,255,.12);
+  --glass:rgba(15,16,17,.3);
+  --sky-text:rgba(245,245,247,.8);   /* на синьому сірий Ash не читається — світліший другий тон */
+  --sky:linear-gradient(rgb(15,16,17), rgb(19,29,39) 18%, rgb(26,71,136) 37%, rgb(64,138,193) 69%, rgb(64,138,193) 102%);
+
+  --serif:'Newsreader','Iowan Old Style','Palatino Linotype',Georgia,serif;
+  --sans:'Geist',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'Roboto Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* шкала: одна роль — один розмір на всю сторінку */
+  --t-mono:13px; --t-meta:15px; --t-body:18px; --t-lead:22px; --t-card:26px; --t-stat:30px; --t-h2:40px; --t-h1:60px;
+
+  --gut:20px; --max:1200px; --nav-h:60px;
+  --air:cubic-bezier(.455,.03,.515,.955);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;background:var(--obsidian)}
+body{
+  margin:0;background:var(--obsidian);color:var(--cloud);
+  font-family:var(--sans);font-weight:300;font-size:var(--t-body);line-height:1.55;
+  font-synthesis:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+img,svg,canvas{display:block}
+a{color:inherit}
+p,h1,h2,ul,figure{margin:0}
+ul{padding:0;list-style:none}
+em{font-style:italic}
+h1,h2{font-family:var(--serif);font-weight:300;color:var(--pure);text-wrap:balance}
+
+.wrap{width:100%;max-width:calc(var(--max) + var(--gut) * 2);margin-inline:auto;padding-inline:var(--gut)}
+.mono{font-family:var(--mono);font-size:var(--t-mono);font-weight:400;line-height:1.5;letter-spacing:.02em;text-transform:uppercase}
+
+/* ── кнопка: біле на чорному, завжди зі стрілкою ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:12px;
+  min-height:52px;padding:0 22px;border-radius:8px;
+  background:var(--pure);color:var(--void);text-decoration:none;
+  font-family:var(--sans);font-size:var(--t-meta);font-weight:500;line-height:1;white-space:nowrap;
+  transition:background-color .2s ease;-webkit-tap-highlight-color:transparent;
+}
+.btn svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease}
+.btn:hover{background:#e4e4e6}
+.btn:hover svg{transform:translateX(3px)}
+.btn:focus-visible,.logo:focus-visible{outline:2px solid var(--pure);outline-offset:3px}
+.btn--sm{min-height:40px;padding:0 14px;gap:8px}
+
+/* ── шапка: скло над небом ── */
+.nav{
+  position:fixed;z-index:30;top:0;left:0;right:0;padding-top:env(safe-area-inset-top,0px);
+  background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(1.35);backdrop-filter:blur(24px) saturate(1.35);
+  border-bottom:1px solid transparent;transition:background-color .2s ease,border-color .2s ease;
+}
+.nav.is-scrolled{background:rgba(15,16,17,.62);border-bottom-color:rgba(255,255,255,.08)}
+.nav__in{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;height:var(--nav-h)}
+.logo{display:block;justify-self:start;color:var(--pure);padding-block:12px}
+.logo svg{height:19px;width:auto}
+.nav__dock{display:none}
+.nav .btn{grid-column:3;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility 0s linear .2s,background-color .2s ease}
+.nav.show-cta .btn{opacity:1;visibility:visible;transition:opacity .2s ease,visibility 0s,background-color .2s ease}
+
+/* ── мітка-пігулка над заголовком ── */
+.pill{
+  display:inline-block;max-width:100%;padding:9px 16px;border-radius:1440px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);
+  color:#fafafa;font-weight:500;text-wrap:balance;
+}
+
+/* ═══ ЕКРАН 1 · небо ═════════════════════════════════════ */
+.hero{
+  position:relative;isolation:isolate;overflow:hidden;text-align:center;background:var(--sky);
+  padding-top:calc(var(--nav-h) + env(safe-area-inset-top,0px) + 32px);
+  padding-bottom:var(--band,44vh);
+}
+.sky{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.hero__in{display:flex;flex-direction:column;align-items:center}
+.hero h1{margin-top:26px;font-size:var(--t-h1);line-height:.94;letter-spacing:-.022em}
+.hero h1 span,.hero h1 em{display:block}
+.hero h1 em{white-space:nowrap;letter-spacing:-.01em}
+.date{margin-top:24px;color:var(--cloud)}
+.sub{margin-top:14px;max-width:32em;color:var(--sky-text);text-wrap:pretty}
+.sub__who{display:block;color:var(--pure);font-weight:400}
+.hero__cta{margin-top:30px;width:100%;max-width:400px}
+
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes rise-soft{from{opacity:0;transform:translateY(10px);filter:blur(8px)}to{opacity:1;transform:none;filter:blur(0)}}
+.hero__in>*{animation:rise 1.6s var(--air) both;animation-delay:var(--d,0s)}
+.hero h1{animation-name:rise-soft;animation-duration:2.5s}
+
+/* ── ведуча: портрет сидить на лінії горизонту ── */
+.host{position:relative;background:var(--obsidian);text-align:center;padding-bottom:88px}
+.host__ph{position:relative;width:124px;height:124px;margin:-62px auto 0;padding:10px;border-radius:50%;background:var(--obsidian)}
+.host__ph img{width:100%;height:100%;border-radius:50%;object-fit:cover;filter:contrast(1.04) brightness(.95)}
+.ring{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ring circle{fill:none;stroke-width:1}
+.ring__base{stroke:rgba(255,255,255,.16)}
+.ring__arc{stroke:var(--pure);stroke-linecap:round;stroke-dasharray:14 86;animation:borderTurn 16s linear infinite}
+@keyframes borderTurn{to{stroke-dashoffset:-100}}
+.host__role{margin-top:22px;color:var(--ash)}
+.host__name{margin-top:8px;font-family:var(--serif);font-weight:300;font-size:var(--t-card);line-height:1.15;color:var(--pure);text-wrap:balance}
+
+.laurels{margin-top:36px;display:flex;flex-direction:column;align-items:center;gap:22px}
+.badge{display:flex;align-items:center;gap:12px}
+.lf{width:22px;height:42px;flex:none;color:var(--pure)}
+.lf.r{transform:scaleX(-1)}
+.badge__k{display:block;font-family:var(--serif);font-weight:300;font-size:var(--t-lead);line-height:1.1;color:var(--pure)}
+.badge .mono{display:block;margin-top:4px;color:var(--ash)}
+
+.terms{margin:40px auto 0;padding-top:28px;border-top:1px solid var(--hair);max-width:520px;display:grid;gap:12px;justify-items:center}
+.terms li{display:flex;align-items:center;gap:10px;font-size:var(--t-meta);line-height:1.4;color:var(--ash);text-align:left}
+.terms svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--cloud);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+
+/* ═══ ЕКРАН 2 · дві плями ════════════════════════════════ */
+.problem{background:var(--abyss);padding-block:96px}
+.problem h2,.who h2{margin-inline:auto;max-width:15em;text-align:center;font-size:var(--t-h2);line-height:1;letter-spacing:-.018em}
+.lead{margin:22px auto 0;max-width:28em;text-align:center;font-size:var(--t-lead);line-height:1.4;color:var(--cloud);text-wrap:pretty}
+.lab{margin-top:44px;padding:16px;border-radius:16px;background:var(--graphite)}
+.lab canvas{width:100%;height:auto;aspect-ratio:1/1.05}
+.problem__row{margin-top:40px;display:grid;gap:24px}
+.body{max-width:34em;color:var(--ash);text-wrap:pretty}
+.stat{padding:28px 24px;border-radius:30px;background:var(--silver);color:var(--void)}
+.stat__h{font-family:var(--serif);font-weight:300;font-size:var(--t-stat);line-height:1.05;letter-spacing:-.012em;text-wrap:balance}
+.stat__b{margin-top:14px;font-weight:400;text-wrap:pretty}
+
+/* ═══ ЕКРАН 3 · для кого ═════════════════════════════════ */
+.who{background:var(--obsidian);padding-block:96px 104px}
+.tiles{margin-top:44px;display:grid;gap:12px}
+.tile{display:flex;flex-direction:column;justify-content:space-between;gap:36px;padding:24px;border-radius:30px;color:var(--void)}
+.tile svg{width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.tile p{font-family:var(--serif);font-weight:300;font-size:var(--t-card);line-height:1.16;letter-spacing:-.01em;text-wrap:pretty}
+.t1{background:var(--iris)}
+.t2{background:var(--orchid)}
+.t3{background:var(--periwinkle)}
+.t4{background:var(--deep-iris);color:var(--pure)}
+.t5{background:var(--pale-iris)}
+.t6{background:var(--cyan)}
+
+.foot{background:var(--abyss);border-top:1px solid rgba(255,255,255,.06);padding-block:36px calc(36px + env(safe-area-inset-bottom,0px))}
+.foot .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.foot svg{height:15px;width:auto;color:var(--ash)}
+.foot p{font-size:var(--t-meta);color:var(--ash)}
+
+/* ── рух: спокійні появи, 2.5 s для модуля з плямами ── */
+.js [data-reveal]{opacity:0;transform:translateY(22px);transition:opacity 1.4s var(--air),transform 1.4s var(--air);transition-delay:var(--d,0s)}
+.js [data-reveal].in{opacity:1;transform:none}
+.js .lab[data-reveal]{transform:translateY(40px) scale(.985);transition-duration:2.5s}
+.js .lab[data-reveal].in{transform:none}
+/* іконки на плитках промальовуються лінією, коли плитка з'являється.
+   Селектор по тегу, а не по атрибуту pathLength: Chrome не оновлює стилі SVG за camelCase-атрибутом */
+.js .tile svg > *{stroke-dasharray:1 1;stroke-dashoffset:1;opacity:0}
+.js .tile.in svg > *{animation:draw 1.8s cubic-bezier(.455,.03,.515,.955) .45s both}
+@keyframes draw{0%{stroke-dashoffset:1;opacity:0}6%{opacity:1}100%{stroke-dashoffset:0;opacity:1}}
+
+@media (prefers-reduced-motion:reduce){
+  .hero__in>*{animation:none}
+  .js [data-reveal],.js .lab[data-reveal]{opacity:1;transform:none;transition:none}
+  .js .tile svg > *,.js .tile.in svg > *{stroke-dashoffset:0;opacity:1;animation:none}
+  .ring__arc{animation:none}
+}
+
+/* ═══ вузькі телефони ═══ */
+@media (max-width:374px){
+  :root{--gut:16px;--t-mono:12.5px}   /* усі моно-мітки разом, щоб пігулка влізла в рядок */
+  .pill{padding-inline:12px}
+}
+@media (max-width:359px){
+  :root{--t-h1:52px}
+  .nav .btn svg{display:none}
+  .logo svg{height:16px}
+}
+
+/* ═══ планшет ═══ */
+@media (min-width:640px){
+  :root{--gut:32px;--t-h1:76px;--t-h2:56px}
+  .hero h1 .l1,.hero h1 .l2{display:inline}
+  .hero__cta{width:auto;min-width:280px}
+  .laurels{flex-direction:row;justify-content:center;gap:48px}
+  .terms{grid-auto-flow:column;justify-content:center;column-gap:32px;max-width:none}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tile:nth-child(2n){--d:.1s}
+  .js .tile.in:nth-child(2n) svg > *{animation-delay:.55s}
+  .lab{padding:40px}
+  .lab canvas{aspect-ratio:1.7/1}
+  .stat{padding:32px}
+}
+
+/* ═══ ПК ═══ */
+@media (min-width:1024px){
+  :root{--gut:48px;--nav-h:72px;--t-h1:96px;--t-h2:80px;--t-lead:24px;--t-card:28px;--t-stat:38px}
+  .logo svg{height:22px}
+  .nav .btn{opacity:1;visibility:visible}
+  .pill{padding:10px 32px}
+  .hero{padding-top:calc(var(--nav-h) + env(safe-area-inset-top,0px) + 72px)}
+  .hero h1{margin-top:32px;line-height:.9}
+  .date{margin-top:30px}
+  .sub{margin-top:16px}
+  .hero__cta{margin-top:36px}
+  .host{padding-bottom:120px}
+  .problem{padding-block:140px}
+  .who{padding-block:140px 150px}
+  .lead{margin-top:28px}
+  .lab{margin-top:64px;padding:90px}
+  .lab canvas{aspect-ratio:1.95/1}
+  .problem__row{margin-top:56px;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:56px;align-items:start}
+  .tiles{margin-top:64px;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  .tile{min-height:340px;padding:32px}
+  .tile:nth-child(2n){--d:0s}
+  .tile:nth-child(3n+2){--d:.1s}
+  .tile:nth-child(3n){--d:.2s}
+  .js .tile.in:nth-child(n) svg > *{animation-delay:.45s}
+  .js .tile.in:nth-child(3n+2) svg > *{animation-delay:.55s}
+  .js .tile.in:nth-child(3n) svg > *{animation-delay:.65s}
+  .tile svg{width:40px;height:40px}
+}
+@media (min-width:1180px){
+  .nav__dock{display:flex;justify-self:center;align-items:baseline;gap:14px;opacity:0;transition:opacity .2s ease}
+  .nav.show-cta .nav__dock{opacity:1}
+  .nav__dock span:first-child{font-size:var(--t-meta);font-weight:400;color:var(--cloud)}
+  .nav__dock .mono{color:var(--ash)}
+}
+</style>
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">%%LAUREL%%</svg>
+
+<header class="nav" id="nav">
+  <div class="wrap nav__in">
+    <a class="logo" href="https://edutologia.pl/" aria-label="Edutologia">%%LOGO%%</a>
+    <p class="nav__dock"><span>Infiltracja Icon od A&nbsp;do&nbsp;Z</span> <span class="mono">Na żywo (Zoom): środa, 4&nbsp;listopada, godz.&nbsp;19:00</span></p>
+    <a class="btn btn--sm" href="https://edutologia.pl/webinar/dominika-jordan/icon/#cena" target="_blank" rel="noopener">Zapisuję się&nbsp;— 197&nbsp;zł<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h11M9 3.5 13.5 8 9 12.5"/></svg></a>
+  </div>
+</header>
+
+<main>
+<section class="hero" aria-labelledby="h1">
+  <canvas class="sky" aria-hidden="true"></canvas>
+  <div class="wrap hero__in">
+    <p class="pill mono" style="--d:0s">Early bird 197&nbsp;zł&nbsp;· od 13.10&nbsp;— 249&nbsp;zł</p>
+    <h1 id="h1" style="--d:.12s"><span class="l1">Infiltracja</span> <span class="l2">Icon</span> <em>od A&nbsp;do&nbsp;Z</em></h1>
+    <p class="date mono" style="--d:.55s">Środa, 4&nbsp;listopada, godz.&nbsp;19:00</p>
+    <p class="sub" style="--d:.7s"><span class="sub__who">Webinar dla higienistek stomatologicznych</span> <span class="sub__deck">Kwalifikacja pacjenta, technika zabiegu i&nbsp;najczęstsze błędy przy plamach różnego pochodzenia.</span></p>
+    <a class="btn hero__cta" style="--d:.85s" href="https://edutologia.pl/webinar/dominika-jordan/icon/#cena" target="_blank" rel="noopener">Zapisuję się&nbsp;— 197&nbsp;zł<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h11M9 3.5 13.5 8 9 12.5"/></svg></a>
+  </div>
+</section>
+
+<section class="host" aria-label="Prowadząca">
+  <div class="wrap">
+    <figure class="host__ph" data-reveal>
+      <img src="%%PORTRAIT%%" alt="Dominika Jordan" width="104" height="104">
+      <svg class="ring" viewBox="0 0 124 124" aria-hidden="true"><circle class="ring__base" cx="62" cy="62" r="57" vector-effect="non-scaling-stroke"/><circle class="ring__arc" cx="62" cy="62" r="57" pathLength="100" vector-effect="non-scaling-stroke"/></svg>
+    </figure>
+    <p class="mono host__role" data-reveal>Prowadząca</p>
+    <p class="host__name" data-reveal style="--d:.08s">Dypl.&nbsp;hig.&nbsp;stom. Dominika&nbsp;Jordan</p>
+    <ul class="laurels">
+      <li class="badge" data-reveal style="--d:.1s"><svg class="lf" aria-hidden="true"><use href="#laurel" width="100%" height="100%"/></svg><span><span class="badge__k">15&nbsp;lat</span> <span class="mono">doświadczenia</span></span><svg class="lf r" aria-hidden="true"><use href="#laurel" width="100%" height="100%"/></svg></li>
+      <li class="badge" data-reveal style="--d:.2s"><svg class="lf" aria-hidden="true"><use href="#laurel" width="100%" height="100%"/></svg><span><span class="badge__k">Ekspert</span> <span class="mono">w&nbsp;pracy z&nbsp;systemem Icon</span></span><svg class="lf r" aria-hidden="true"><use href="#laurel" width="100%" height="100%"/></svg></li>
+    </ul>
+    <ul class="terms" data-reveal style="--d:.15s">
+      <li><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="2.4" fill="currentColor" stroke="none" style="color:var(--cloud)"/><circle cx="10" cy="10" r="6.6"/></svg>Na żywo (Zoom), z&nbsp;pytaniami do prowadzącej</li>
+      <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4.6 10a5.4 5.4 0 1 0 1.7-3.95"/><path d="M4.3 3.4v3.3h3.3"/></svg>Potem nagranie dostępne przez rok</li>
+    </ul>
+  </div>
+</section>
+
+<section class="problem" aria-labelledby="h2a">
+  <div class="wrap">
+    <h2 id="h2a" data-reveal>Dlaczego jedna plama <em>znika</em> po Icon, a&nbsp;inna nie?</h2>
+    <p class="lead" data-reveal style="--d:.15s">Dwie białe plamy mogą wyglądać tak samo. Po infiltracji jedna znika, druga zostaje.</p>
+    <div class="lab" data-reveal><canvas id="lab" aria-hidden="true"></canvas></div>
+    <div class="problem__row">
+      <p class="body" data-reveal>Różnica jest pod powierzchnią: głębokość zmiany, jej pochodzenie i&nbsp;to, jak mocno zmineralizowana jest warstwa powierzchowna. Stara plama po aparacie, fluoroza i&nbsp;MIH to dla Icon trzy różne zadania.</p>
+      <div class="stat" data-reveal style="--d:.12s">
+        <p class="stat__h">Tego nie ocenisz na pierwszy rzut oka.</p>
+        <p class="stat__b">Dlatego webinar zaczyna się od kwalifikacji: zanim nałożysz kwas, wiesz, na jaki efekt możesz liczyć.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="who" aria-labelledby="h2b">
+  <div class="wrap">
+    <h2 id="h2b" data-reveal>Ten webinar jest dla <em>Ciebie</em>, jeśli:</h2>
+    <ul class="tiles">
+      <li class="tile t1" data-reveal>
+        <svg viewBox="0 0 40 40" aria-hidden="true"><rect pathLength="1" x="9" y="5" width="22" height="30" rx="8"/><rect pathLength="1" x="15" y="16" width="10" height="8" rx="1.6"/><path pathLength="1" d="M2 20h13M25 20h13"/></svg>
+        <p>pracujesz z&nbsp;pacjentami ortodontycznymi i&nbsp;po zdjęciu aparatu widzisz białe plamy;</p>
+      </li>
+      <li class="tile t2" data-reveal>
+        <svg viewBox="0 0 40 40" aria-hidden="true"><rect pathLength="1" x="9" y="5" width="22" height="30" rx="8"/><circle pathLength="1" cx="16" cy="14" r="2.6"/><circle pathLength="1" cx="24.5" cy="19" r="1.6"/><path pathLength="1" d="M14 27h5M23 25.5h3"/></svg>
+        <p>pracujesz w&nbsp;gabinecie ogólnym lub dziecięcym i&nbsp;spotykasz fluorozę, MIH, plamy pourazowe albo wczesne zmiany próchnicowe;</p>
+      </li>
+      <li class="tile t3" data-reveal>
+        <svg viewBox="0 0 40 40" aria-hidden="true"><path pathLength="1" d="M20 5 34 12v16L20 35 6 28V12z"/><path pathLength="1" d="M6 12l14 7 14-7"/><path pathLength="1" d="M20 19v16"/><path pathLength="1" d="M13 8.5l14 7"/></svg>
+        <p>nie wykonywałaś jeszcze Icon, a&nbsp;w&nbsp;gabinecie pojawił się zestaw lub lekarz chce zlecić Ci ten zabieg;</p>
+      </li>
+      <li class="tile t4" data-reveal>
+        <svg viewBox="0 0 40 40" aria-hidden="true"><path pathLength="1" d="M4 34h32"/><path pathLength="1" d="M4 25l5-7 4.5 9 5-16 4.5 13 4-6 4 8 5-12"/></svg>
+        <p>wykonujesz już Icon, ale efekt bywa nieprzewidywalny;</p>
+      </li>
+      <li class="tile t5" data-reveal>
+        <svg viewBox="0 0 40 40" aria-hidden="true"><path pathLength="1" d="M3.5 20S9.5 9.5 20 9.5 36.5 20 36.5 20 30.5 30.5 20 30.5 3.5 20 3.5 20z"/><circle pathLength="1" cx="20" cy="20" r="5.5"/></svg>
+        <p>chcesz dodać do swojej pracy zabieg, którego efekt pacjent widzi od razu;</p>
+      </li>
+      <li class="tile t6" data-reveal>
+        <svg viewBox="0 0 40 40" aria-hidden="true"><rect pathLength="1" x="7" y="8" width="26" height="18" rx="2"/><path pathLength="1" d="M3 31h34"/><path pathLength="1" d="M17.5 13.2v8.6l6.6-4.3z"/></svg>
+        <p>chcesz poznać metodę, zanim zainwestujesz w&nbsp;warsztaty stacjonarne.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">%%LOGO%%<p>© 2026 Edutologia</p></div>
+</footer>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  root.lang = 'pl';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;   // ≈ cubic-bezier(.455,.03,.515,.955)
+  const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+  const IO = 'IntersectionObserver' in window, RO = 'ResizeObserver' in window;
+
+  /* ── 1. Висота неба: текст закінчується не нижче 58 % висоти, щоб білий текст
+        лишався на темній частині градієнта, а хмари жили знизу ── */
+  const hero = document.querySelector('.hero');
+  const heroIn = hero.querySelector('.hero__in');
+  let textFrac = .42;
+  function sizeHero(){
+    const top = heroIn.offsetTop + heroIn.offsetHeight;
+    const band = Math.max(innerWidth < 640 ? 240 : 280, top * .724);
+    hero.style.setProperty('--band', Math.round(band) + 'px');
+    textFrac = band / (top + band);
+  }
+  sizeHero();
+  addEventListener('resize', sizeHero);
+  if (document.fonts) document.fonts.ready.then(sizeHero);
+
+  /* ── 2. Хмари: WebGL, повільний дрейф, перспектива до горизонту ── */
+  (function sky(){
+    const cv = hero.querySelector('.sky');
+    let gl = null;
+    try { gl = cv.getContext('webgl', {alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false, powerPreference: 'low-power'}); } catch (e) {}
+    if (!gl) { cv.remove(); return; }
+    const VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+    const FS = `precision highp float;
+uniform vec2 uRes;uniform float uTime;uniform float uIntro;uniform float uText;uniform float uUnit;
+float hash(vec2 p){vec3 p3=fract(vec3(p.xyx)*.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
+  return mix(mix(hash(i),hash(i+vec2(1.,0.)),u.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),u.x),u.y);}
+float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);
+  for(int i=0;i<6;i++){v+=a*noise(p);p=m*p;a*=.5;}return v;}
+float billow(vec2 p){float v=0.,a=.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);
+  for(int i=0;i<5;i++){v+=a*abs(noise(p)*2.-1.);p=m*p;a*=.5;}return v;}
+float cloud(vec2 b){return fbm(b)-.1*billow(b*1.7+3.1);}
+void main(){
+  vec2 fc=gl_FragCoord.xy;
+  float y=fc.y/uRes.y;
+  float depth=.95/(y+.24);
+  vec2 p=vec2((fc.x-.5*uRes.x)/uUnit*depth*.6,depth*1.7);
+  float t=uTime;
+  p.x+=t*.02;
+  vec2 q=vec2(fbm(p+vec2(0.,t*.01)),fbm(p+vec2(5.2,1.3-t*.008)));
+  vec2 b=p+.85*q+vec2(t*.014,0.);
+  float d=cloud(b);
+  float band=1.-smoothstep(uText-.12,uText+.12,y);
+  float cover=mix(.53,.31,band);
+  float dens=smoothstep(cover,cover+.15,d);
+  float d2=cloud(b+vec2(.03,-.07));
+  float lit=clamp(.6+(d-d2)*5.,0.,1.);
+  vec3 col=mix(vec3(.5,.57,.67),vec3(.97,.98,.99),lit);
+  col*=mix(.3,1.,band);
+  float a=dens*mix(.18,.96,band)*uIntro;
+  gl_FragColor=vec4(col*a,a);
+}`;
+    const mk = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : (console.warn(gl.getShaderInfoLog(s)), null); };
+    const vs = mk(gl.VERTEX_SHADER, VS), fs = mk(gl.FRAGMENT_SHADER, FS);
+    if (!vs || !fs) { cv.remove(); return; }
+    const pr = gl.createProgram(); gl.attachShader(pr, vs); gl.attachShader(pr, fs); gl.linkProgram(pr);
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { cv.remove(); return; }
+    gl.useProgram(pr);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const ap = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(ap); gl.vertexAttribPointer(ap, 2, gl.FLOAT, false, 0, 0);
+    const U = n => gl.getUniformLocation(pr, n);
+    const uRes = U('uRes'), uTime = U('uTime'), uIntro = U('uIntro'), uText = U('uText'), uUnit = U('uUnit');
+    const S = .5, seed = 57;   // фіксований кадр неба: усі бачать ту саму композицію хмар
+    let w = 0, h = 0, cssW = 0;
+    function resize(){
+      const r = hero.getBoundingClientRect(); cssW = r.width;
+      const nw = Math.max(2, Math.round(r.width * S)), nh = Math.max(2, Math.round(r.height * S));
+      if (nw !== w || nh !== h) { w = nw; h = nh; cv.width = w; cv.height = h; gl.viewport(0, 0, w, h); }
+    }
+    function draw(t){
+      gl.uniform2f(uRes, w, h); gl.uniform1f(uTime, t + seed);
+      gl.uniform1f(uIntro, reduce ? 1 : ease(clamp(t / 2.5)));
+      gl.uniform1f(uText, textFrac);
+      gl.uniform1f(uUnit, clamp(cssW * .26 + 80, 160, 420) * S);   // ~2,5 хмари в ширину телефона, ~5 на ПК
+      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    let vis = true, raf = 0, last = -1;
+    const t0 = performance.now();
+    function frame(now){
+      raf = 0; if (!vis) return;            // у фоновій вкладці браузер сам зупиняє rAF
+      raf = requestAnimationFrame(frame);
+      if (now - last < 32) return;            // ~30 кадрів: хмарам більше не треба
+      last = now; draw((now - t0) / 1000);
+    }
+    const go = () => { if (!raf && !reduce) raf = requestAnimationFrame(frame); };
+    resize();
+    if (reduce) draw(4); else go();
+    if (RO) new ResizeObserver(() => { resize(); if (reduce) draw(4); }).observe(hero);
+    if (IO) new IntersectionObserver(([e]) => { vis = e.isIntersecting; if (vis) go(); }).observe(hero);
+    cv.addEventListener('webglcontextlost', e => { e.preventDefault(); vis = false; });
+  })();
+
+  /* ── 3. Шапка: скло темнішає при скролі; кнопка з'являється, коли кнопка геро зникла з екрана ── */
+  const nav = document.getElementById('nav');
+  const cta = hero.querySelector('.hero__cta');
+  let ticking = false;
+  const navState = () => {
+    const r = cta.getBoundingClientRect();
+    nav.classList.toggle('is-scrolled', scrollY > 8);
+    nav.classList.toggle('show-cta', r.bottom < 0 || r.top > innerHeight);
+    ticking = false;
+  };
+  const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(navState); } };
+  addEventListener('scroll', onScroll, {passive: true});
+  addEventListener('resize', onScroll);
+  navState();
+
+  /* ── 4. Появи секцій ── */
+  const items = [...document.querySelectorAll('[data-reveal]')];
+  const show = el => el.classList.add('in');
+  if (IO && !reduce) {
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { show(e.target); io.unobserve(e.target); } }), {rootMargin: '0px 0px -6% 0px', threshold: .12});
+    items.forEach(el => io.observe(el));
+    // запасний шлях без observer'а: усе, що вже вище нижнього краю екрана (і перескочене якорем),
+    // показуємо за таймером — текст не може лишитися невидимим, якщо браузер притримав observer
+    const sweep = () => {
+      const lim = innerHeight * .94; let left = 0;
+      for (const el of items) if (!el.classList.contains('in')) { if (el.getBoundingClientRect().top < lim) { show(el); io.unobserve(el); } else left++; }
+      if (!left) clearInterval(iv);
+    };
+    const iv = setInterval(sweep, 400);
+  } else items.forEach(show);
+
+  /* ── 5. Дві плями: вигляд зверху через лупу і зріз емалі під ним.
+        Ліва — неглибока, тонкий поверхневий шар: інфільтрант заходить, пляма зникає.
+        Права — глибока, щільний поверхневий шар: інфільтрант не проходить, пляма лишається. ── */
+  (function lab(){
+    const cv = document.getElementById('lab');
+    const ctx = cv && cv.getContext && cv.getContext('2d');
+    if (!ctx) return;
+    const ENAMEL = [184, 188, 195], LENS = [172, 177, 185], DENTIN = [100, 103, 109], WHITE = [247, 248, 250], PANEL = [26, 27, 28];
+    const CYAN = 'rgb(0,179,221)';
+    const SPEC = [
+      {depth: .3, crust: 1.4, crustE: 0, deep: true},
+      {depth: .72, crust: 5.4, crustE: 3.8, deep: false}
+    ];
+    const LOOP = 10.6, XF = 1.3;
+
+    const mulberry = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+    const r0 = mulberry(11), PERM = new Float32Array(65536);
+    for (let i = 0; i < PERM.length; i++) PERM[i] = r0();
+    const vn = (x, y) => {
+      const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+      const g = (X, Y) => PERM[((Y & 255) << 8) | (X & 255)];
+      const a = g(xi, yi), b = g(xi + 1, yi), c = g(xi, yi + 1), d = g(xi + 1, yi + 1);
+      return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+    };
+    const fbm = (x, y) => vn(x, y) * .5 + vn(x * 2.03 + 17, y * 2.03 + 5) * .25 + vn(x * 4.07 + 3, y * 4.07 + 29) * .125 + vn(x * 8.1 + 41, y * 8.1 + 13) * .0625;
+
+    let W = 0, H = 0, dpr = 1, G = null, raf = 0, t0 = 0, snap = null, snapT = -1, playing = false, inView = false;
+
+    const surface = (w, h, scale) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w * scale)); c.height = Math.max(1, Math.round(h * scale)); return c; };
+
+    function lensTex(r){
+      const c = surface(2 * r, 2 * r, dpr), g = c.getContext('2d'), D = c.width, img = g.createImageData(D, D), a = img.data, Rp = D / 2;
+      for (let y = 0; y < D; y++) for (let x = 0; x < D; x++) {
+        const dx = (x + .5 - Rp) / Rp, dy = (y + .5 - Rp) / Rp, rr = Math.hypot(dx, dy), i = (y * D + x) * 4;
+        if (rr > 1) { a[i + 3] = 0; continue; }
+        const u = x / dpr, v = y / dpr;
+        const L = (fbm(u / 24, v / 24) - .47) * 20 + Math.sin((v + 2.4 * Math.sin(u / 15)) / 2.4) * 2.2 + (-dx * .5 - dy * .8) * 10 - Math.pow(Math.max(0, rr - .6) / .4, 2) * 38;
+        a[i] = LENS[0] + L; a[i + 1] = LENS[1] + L; a[i + 2] = LENS[2] + L + 1; a[i + 3] = 255 * clamp((1 - rr) * Rp);
+      }
+      g.putImageData(img, 0, 0); return c;
+    }
+    function spotTex(r){
+      const c = surface(2 * r, 2 * r, dpr), g = c.getContext('2d'), D = c.width, img = g.createImageData(D, D), a = img.data, Rp = D / 2;
+      for (let y = 0; y < D; y++) for (let x = 0; x < D; x++) {
+        const sx = (x + .5 - Rp) / dpr, sy = (y + .5 - Rp) / dpr, i = (y * D + x) * 4;
+        const e = Math.hypot(sx / (r * .6), (sy - r * .05) / (r * .4)) + (fbm(sx / 9 + 40, sy / 9 + 40) - .47) * .34;
+        const A = (1 - smooth(.5, 1.02, e)) * (.86 + (fbm(sx / 5 + 90, sy / 5 + 90) - .47) * .3);
+        a[i] = WHITE[0]; a[i + 1] = WHITE[1]; a[i + 2] = WHITE[2]; a[i + 3] = 255 * clamp(A);
+      }
+      g.putImageData(img, 0, 0); return c;
+    }
+    function secTex(w, h, surf, edj){
+      const c = surface(w, h, dpr), g = c.getContext('2d'), Wp = c.width, Hp = c.height, img = g.createImageData(Wp, Hp), a = img.data;
+      for (let x = 0; x < Wp; x++) {
+        const u = (x + .5) / dpr, s = surf(u), e = edj(u);
+        for (let y = 0; y < Hp; y++) {
+          const v = (y + .5) / dpr, i = (y * Wp + x) * 4, n = fbm(u / 14, v / 14) - .47;
+          let r, gg, b;
+          if (v < s) { r = PANEL[0]; gg = PANEL[1]; b = PANEL[2]; }
+          else if (v < e) {
+            const k = (v - s) / (e - s);
+            const pr = Math.abs((((u + .9 * Math.sin(v / 10)) % 3.4) + 3.4) % 3.4 - 1.7) / 1.7;   // призми емалі
+            const rz = Math.sin((v * .95 - u * .38) / 4.6);                                        // лінії Ретціуса
+            const L = n * 16 + (1 - k) * 7 - (1 - smooth(0, .4, pr)) * 7 - Math.max(0, rz - .9) * 45;
+            r = ENAMEL[0] + L; gg = ENAMEL[1] + L; b = ENAMEL[2] + L;
+          } else {
+            const tb = Math.abs((((u + 5 * Math.sin(v / 34)) % 4.6) + 4.6) % 4.6 - 2.3) / 2.3;    // канальці дентину
+            const L = n * 14 - (1 - smooth(0, .3, tb)) * 6;
+            r = DENTIN[0] + L; gg = DENTIN[1] + L; b = DENTIN[2] + L + 2;
+          }
+          const ds = Math.abs(v - s); if (ds < 1) { const k = (1 - ds) * .75; r += (255 - r) * k; gg += (255 - gg) * k; b += (255 - b) * k; }
+          const de = Math.abs(v - e); if (de < .9) { const k = (1 - de / .9) * .35; r *= 1 - k; gg *= 1 - k; b *= 1 - k; }
+          a[i] = r; a[i + 1] = gg; a[i + 2] = b; a[i + 3] = 255;
+        }
+      }
+      g.putImageData(img, 0, 0); return c;
+    }
+    function hazeTex(w, h, L, rgb){
+      const sc = Math.min(dpr, 1.5), c = surface(w, h, sc), g = c.getContext('2d'), Wp = c.width, Hp = c.height, img = g.createImageData(Wp, Hp), a = img.data;
+      for (let y = 0; y < Hp; y++) for (let x = 0; x < Wp; x++) {
+        const u = (x + .5) / sc, v = (y + .5) / sc, i = (y * Wp + x) * 4;
+        if (v < L.top - 2) { a[i + 3] = 0; continue; }
+        const e = Math.hypot((u - L.cx) / L.rx, Math.max(0, v - L.top) / L.ry) + (fbm(u / 7 + 60, v / 7 + 60) - .47) * .35;
+        const A = (1 - smooth(.7, 1.02, e)) * smooth(L.top - 1.5, L.top + 1.5, v);
+        a[i] = rgb[0]; a[i + 1] = rgb[1]; a[i + 2] = rgb[2]; a[i + 3] = 255 * clamp(A);
+      }
+      g.putImageData(img, 0, 0); return c;
+    }
+
+    function build(){
+      const rect = cv.getBoundingClientRect();
+      if (rect.width < 10 || rect.height < 10) return false;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = rect.width; H = rect.height;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      const gap = Math.max(22, W * .08), colW = (W - gap) / 2;
+      const R = Math.min(colW * .42, H * .215), rim = Math.max(5, R * .075), cy = R + 7;
+      const secY = cy + R + Math.max(26, H * .075), secH = H - secY - 1, secW = Math.min(colW, R * 3.3);
+      const half = Math.min(colW / 2 + gap / 2, secW / 2 + Math.max(gap / 2, 44));
+      const s0 = secH * .2, e0 = secH * .8;
+      const surf = u => s0 + 7 * Math.pow((u - secW / 2) / (secW / 2), 2);
+      const edj = u => e0 + 3 * Math.sin(u / 7.5) + 1.4 * Math.sin(u / 3.3 + 1);
+      G = {R, rim, cy, secY, secH, secW, surf, xs: [W / 2 - half, W / 2 + half]};
+      const lr = R - rim + 1;
+      G.lr = lr; G.lens = lensTex(lr); G.spot = spotTex(lr);
+      G.sec = secTex(secW, secH, surf, edj);
+      G.sp = SPEC.map((s, idx) => {
+        const cx = secW / 2, sc = surf(cx), top = sc + s.crust, rx = secW * .3, ry = s.depth * (e0 - top);
+        const r = mulberry(100 + idx * 7);
+        const dots = [], n = Math.round(Math.PI * rx * ry / 2 / 8);
+        while (dots.length < n) { const x = (r() * 2 - 1) * rx, y = r() * ry; if (x * x / (rx * rx) + y * y / (ry * ry) <= 1) dots.push({x: cx + x, y: top + y, s: .9 + r() * .9, a: .5 + r() * .5}); }
+        const parts = Array.from({length: 54}, () => {
+          const x = cx + (r() * 2 - 1) * rx * 1.05;
+          return {x, y0: -(4 + r() * s0 * .85), dl: r() * 1.9, du: .9 + r() * .7, ty: s.deep ? top + 2 + r() * ry * .9 : surf(x) + s.crustE + .5 + r() * 2, ph: r() * 6.28};
+        });
+        const L = {cx, top, rx, ry};
+        return Object.assign({}, s, {cx, sc, top, rx, ry, dots, parts, haze: hazeTex(secW, secH, L, WHITE), hazeC: hazeTex(secW, secH, L, [0, 179, 221])});
+      });
+      return true;
+    }
+
+    function rr(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+    function draw(t){
+      const {R, rim, cy, secY, secW, secH, surf, xs, lr} = G;
+      const e = ease(clamp((t - 1) / 1.2));        // протравлення
+      const f = ease(clamp((t - 2.4) / 3));        // інфільтрація
+      const m = ease(clamp((t - 5.4) / 1.8));      // пляма гасне
+      const tr = ease(clamp((t - 6.7) / 1.3)), trA = 1 - clamp((t - 8.6) / .9);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      ctx.lineWidth = 1;
+      G.sp.forEach((sp, i) => {
+        const X = xs[i], mask = sp.deep ? m : 0, vis = 1 - .94 * mask, cyanVis = sp.deep ? 1 - m : 1;
+
+        /* лупа: вигляд зверху */
+        ctx.save(); ctx.beginPath(); ctx.arc(X, cy, R - rim + .5, 0, Math.PI * 2); ctx.clip();
+        ctx.drawImage(G.lens, X - lr, cy - lr, 2 * lr, 2 * lr);
+        ctx.globalAlpha = 1 - mask; ctx.drawImage(G.spot, X - lr, cy - lr, 2 * lr, 2 * lr); ctx.globalAlpha = 1;
+        ctx.strokeStyle = 'rgba(15,16,17,.42)'; ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(X - lr, cy + .5); ctx.lineTo(X + lr, cy + .5); ctx.stroke(); ctx.setLineDash([]);
+        ctx.restore();
+        const gr = ctx.createLinearGradient(X - R, cy - R, X + R, cy + R);
+        gr.addColorStop(0, 'rgb(62,62,64)'); gr.addColorStop(.5, 'rgb(43,43,44)'); gr.addColorStop(1, 'rgb(19,19,19)');
+        ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(X, cy, R, 0, Math.PI * 2); ctx.arc(X, cy, R - rim, 0, Math.PI * 2, true); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,.16)'; ctx.beginPath(); ctx.arc(X, cy, R - .5, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.beginPath(); ctx.arc(X, cy, R - rim + .5, 0, Math.PI * 2); ctx.stroke();
+        if (sp.deep && tr > 0 && trA > 0) {   // borderTurn навколо плями, що зникла
+          ctx.strokeStyle = `rgba(255,255,255,${.9 * trA})`;
+          ctx.beginPath(); ctx.arc(X, cy, R + 7, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * tr); ctx.stroke();
+        }
+        ctx.strokeStyle = 'rgba(255,255,255,.32)'; ctx.setLineDash([2, 4]);
+        ctx.beginPath(); ctx.moveTo(X + .5, cy + R + 8); ctx.lineTo(X + .5, secY - 8); ctx.stroke(); ctx.setLineDash([]);
+
+        /* зріз */
+        const x0 = X - secW / 2, y0 = secY;
+        ctx.save(); rr(x0, y0, secW, secH, 10); ctx.clip();
+        ctx.drawImage(G.sec, x0, y0, secW, secH);
+        ctx.globalAlpha = .8 * vis; ctx.drawImage(sp.haze, x0, y0, secW, secH); ctx.globalAlpha = 1;
+        const crustNow = sp.crust + (sp.crustE - sp.crust) * e;
+        const reach = sp.deep ? sp.crust + sp.ry + 4 : crustNow + 2.2;
+        const front = y0 + sp.sc + f * reach;
+        if (f > 0) {
+          ctx.save(); ctx.beginPath(); ctx.rect(x0, y0, secW, front - y0); ctx.clip();
+          ctx.globalAlpha = .5 * cyanVis * vis; ctx.drawImage(sp.hazeC, x0, y0, secW, secH); ctx.restore();
+        }
+        ctx.fillStyle = 'rgb(247,248,250)';
+        for (const d of sp.dots) {
+          const k = f > 0 ? clamp((front - (y0 + d.y)) / 6 + .5) * cyanVis : 0, al = d.a * vis * (1 - k);
+          if (al > .01) { ctx.globalAlpha = al; ctx.fillRect(x0 + d.x - d.s / 2, y0 + d.y - d.s / 2, d.s, d.s); }
+        }
+        if (f > 0) {
+          ctx.fillStyle = CYAN;
+          for (const d of sp.dots) {
+            const k = clamp((front - (y0 + d.y)) / 6 + .5) * cyanVis;
+            if (k > .01) { ctx.globalAlpha = d.a * vis * k; ctx.fillRect(x0 + d.x - d.s / 2, y0 + d.y - d.s / 2, d.s, d.s); }
+          }
+        }
+        ctx.globalAlpha = 1;
+        if (crustNow > .05) {                  // поверхневий шар над зміною
+          const xa = sp.cx - sp.rx * 1.12, xb = sp.cx + sp.rx * 1.12;
+          ctx.beginPath();
+          for (let u = xa; u <= xb; u += 2) ctx.lineTo(x0 + u, y0 + surf(u));
+          for (let u = xb; u >= xa; u -= 2) ctx.lineTo(x0 + u, y0 + surf(u) + crustNow * smooth(xa, xa + 10, u) * smooth(xb, xb - 10, u));
+          ctx.closePath(); ctx.fillStyle = 'rgba(253,253,254,.96)'; ctx.fill();
+        }
+        if (!sp.deep && f > 0) {               // інфільтрант лишився на поверхні
+          const xa = sp.cx - sp.rx * 1.1, xb = sp.cx + sp.rx * 1.1;
+          ctx.beginPath(); for (let u = xa; u <= xb; u += 2) ctx.lineTo(x0 + u, y0 + surf(u) - .3);
+          ctx.strokeStyle = CYAN; ctx.globalAlpha = .9 * f; ctx.lineWidth = 1.5; ctx.stroke(); ctx.lineWidth = 1; ctx.globalAlpha = 1;
+        }
+        ctx.fillStyle = CYAN;
+        for (const p of sp.parts) {
+          const q = (t - 2.3 - p.dl) / p.du; if (q <= 0) continue;
+          const k = Math.min(q, 1), sy = surf(p.x) + p.y0, y = y0 + sy + (p.ty - sy) * (1 - (1 - k) * (1 - k));
+          const al = (q < 1 ? .95 : Math.max(0, 1 - (q - 1) * p.du / .6)) * (sp.deep ? cyanVis : 1);
+          if (al <= .01) continue;
+          ctx.globalAlpha = al; ctx.fillRect(x0 + p.x + Math.sin(p.ph + k * 4) * 1.2 - .8, y - .8, 1.6, 1.6);
+        }
+        ctx.globalAlpha = 1;
+        if (sp.deep && f > 0 && f < 1) {       // фронт інфільтрації
+          ctx.save(); ctx.beginPath(); ctx.ellipse(x0 + sp.cx, y0 + sp.top, sp.rx * 1.02, sp.ry + 2, 0, 0, Math.PI); ctx.clip();
+          ctx.strokeStyle = CYAN; ctx.globalAlpha = Math.sin(Math.PI * f) * .9;
+          ctx.beginPath(); ctx.moveTo(x0 + sp.cx - sp.rx, front + .5); ctx.lineTo(x0 + sp.cx + sp.rx, front + .5); ctx.stroke();
+          ctx.restore();
+        }
+        ctx.restore();
+        ctx.strokeStyle = 'rgba(255,255,255,.1)'; rr(x0 + .5, y0 + .5, secW - 1, secH - 1, 10); ctx.stroke();
+      });
+    }
+
+    function frame(now){
+      raf = 0; if (!playing) return;
+      let t = (now - t0) / 1000;
+      if (t >= LOOP) {                          // знімок кінцевого стану плавно гасне над новим колом
+        snap = snap || document.createElement('canvas');
+        snap.width = cv.width; snap.height = cv.height; snap.getContext('2d').drawImage(cv, 0, 0);
+        snapT = now; t0 = now; t = 0;
+      }
+      draw(t);
+      if (snapT >= 0) {
+        const k = (now - snapT) / 1000 / XF;
+        if (k < 1) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1 - ease(k); ctx.drawImage(snap, 0, 0); ctx.globalAlpha = 1; }
+        else snapT = -1;
+      }
+      raf = requestAnimationFrame(frame);
+    }
+    const play = delay => { if (playing) return; playing = true; snapT = -1; t0 = performance.now() + delay; raf = requestAnimationFrame(frame); };
+    const stop = () => { playing = false; if (raf) cancelAnimationFrame(raf); raf = 0; };
+
+    let first = true;
+    if (build()) draw(reduce ? 9 : 0);
+    if (RO) new ResizeObserver(() => requestAnimationFrame(() => {
+      const r = cv.getBoundingClientRect();
+      if (Math.abs(r.width - W) < .5 && Math.abs(r.height - H) < .5) return;
+      if (build()) draw(reduce ? 9 : playing ? Math.max(0, (performance.now() - t0) / 1000) : 0);
+    })).observe(cv);
+    if (reduce || !IO) return;
+    new IntersectionObserver(([en]) => {
+      inView = en.isIntersecting;
+      if (inView) { play(first ? 900 : 300); first = false; }
+      else { stop(); if (G) draw(0); }
+    }, {threshold: .3}).observe(cv);
+  })();
+})();
+</script>
+<!--/FRAG-->
+</body>
+</html>
